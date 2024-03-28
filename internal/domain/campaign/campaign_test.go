@@ -19,7 +19,7 @@ func Test_NewCampaign_CreateCampaign(t *testing.T) {
 	assert := assert.New(t)
 
 	// act - agir
-	campaign := campaign.NewCampaign(name, content, emails)
+	campaign, _ := campaign.NewCampaign(name, content, emails)
 
 	// assert - assegurar
 	assert.Equal(campaign.Name, name)
@@ -32,7 +32,7 @@ func Test_NewCampaignIDIsNotNil(t *testing.T) {
 	assert := assert.New(t)
 
 	// act - agir
-	campaign := campaign.NewCampaign(name, content, emails)
+	campaign, _ := campaign.NewCampaign(name, content, emails)
 	assert.NotNil(campaign.ID)
 }
 func Test_NewCampaign_CreatedOnMustBeNow(t *testing.T) {
@@ -42,7 +42,35 @@ func Test_NewCampaign_CreatedOnMustBeNow(t *testing.T) {
 	now := time.Now().Add(-time.Second)
 
 	// act - agir
-	campaign := campaign.NewCampaign(name, content, emails)
+	campaign, _ := campaign.NewCampaign(name, content, emails)
 
 	assert.Greater(campaign.CreatedOn, now)
+}
+
+func Test_NewCampaign_MustValidateName(t *testing.T) {
+	// arrange - organizar o código
+	assert := assert.New(t)
+
+	// act - agir
+	_, err := campaign.NewCampaign("", content, emails)
+
+	assert.Equal("name is required", err.Error())
+}
+func Test_NewCampaign_MustValidateContent(t *testing.T) {
+	// arrange - organizar o código
+	assert := assert.New(t)
+
+	// act - agir
+	_, err := campaign.NewCampaign(name, "", emails)
+
+	assert.Equal("content is required", err.Error())
+}
+func Test_NewCampaign_MustValidateContacts(t *testing.T) {
+	// arrange - organizar o código
+	assert := assert.New(t)
+
+	// act - agir
+	_, err := campaign.NewCampaign(name, content, []string{})
+
+	assert.Equal("contacts are required", err.Error())
 }
