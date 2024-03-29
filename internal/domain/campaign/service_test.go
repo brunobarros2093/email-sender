@@ -4,6 +4,7 @@ import (
 	"emailN/internal/contract"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -11,23 +12,37 @@ type repositoryMock struct {
 	mock.Mock
 }
 
+var (
+	newCampaign = contract.NewCampaignDTO{
+		Name:    "My Campaign",
+		Content: "My Content",
+		Emails:  []string{"bruno@email.com"},
+	}
+	service = Service{}
+)
+
 func (r *repositoryMock) Save(campaign *Campaign) error {
 	args := r.Called(campaign)
 	return args.Error(0)
 }
 
 func Test_Create_SaveCampaign(t *testing.T) {
-	newCampaign := contract.NewCampaignDTO{
-		Name:    "My Campaign",
-		Content: "My Content",
-		Emails:  []string{"bruno@email.com"},
-	}
+	
 	repositoryMock := new(repositoryMock)
 	repositoryMock.On("Save", mock.Anything).Return(nil)
-
-	service := Service{repositoryMock}
+	service.Repository = repositoryMock
 
 	service.Create(newCampaign)
 	repositoryMock.AssertExpectations(t)
+
+}
+func Test_Create_ValidateDomainError(t *testing.T) {
+
+	assert := assert.New(t)
+	newCampaign.Name = ""
+
+	_, err := service.Create(newCampaign)
+	assert.NotNil(err)
+	assert.Equal("name is required", err.Error())
 
 }
