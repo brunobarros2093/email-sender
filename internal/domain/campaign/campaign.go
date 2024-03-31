@@ -8,18 +8,18 @@ import (
 )
 
 type Contact struct {
-	Email string `validate:"required,email" json:"email"`
+	Email string `validate:"email"`
 }
 
 type Campaign struct {
-	ID        string    `validate:"required" json:"id"`
-	Name      string    `validate:"min=5,max=24" json:"name"`
-	CreatedOn time.Time `validate:"required" json:"created_on"`
-	Content   string    `validate:"required,min=5,max=1024" json:"content"`
-	Contacts  []Contact `validade:"min=1"json:"contacts"`
+	ID        string    `validate:"required"`
+	Name      string    `validate:"min=5,max=24"`
+	CreatedOn time.Time `validate:"required"`
+	Content   string    `validate:"min=5,max=1024"`
+	Contacts  []Contact `validate:"min=1,dive"`
 }
 
-func NewCampaign(name, content string, emails []string) (*Campaign, error) {
+func NewCampaign(name string, content string, emails []string) (*Campaign, error) {
 
 	contacts := make([]Contact, len(emails))
 	for index, email := range emails {
@@ -29,8 +29,8 @@ func NewCampaign(name, content string, emails []string) (*Campaign, error) {
 	campaign := &Campaign{
 		ID:        xid.New().String(),
 		Name:      name,
-		CreatedOn: time.Now(),
 		Content:   content,
+		CreatedOn: time.Now(),
 		Contacts:  contacts,
 	}
 	err := internalerrors.ValidateStruct(campaign)
